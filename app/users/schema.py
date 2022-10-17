@@ -63,6 +63,33 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserUpdate(UserBase):
+    """
+    A class to format details needed to create a new user.
+    Inherits from the UserCreate to get the default values.
+    ...
+
+    Attributes
+    ----------
+    middle_name: str
+        the middle name of a user
+    last_name: str
+        the user's last name
+    dob: str
+        the user's date of birth
+    nationality:
+        the user's nationality/country
+
+    Methods
+    -------
+    None
+    """
+    middle_name: str
+    last_name: str
+    dob: datetime.date
+    nationality: str
+
+
 class UserShow(UserBase):
     """
     A class to format how a user object is returned as json.
@@ -88,10 +115,10 @@ class UserShow(UserBase):
     None
     """
     id: int
-    middle_name: Optional[str] = ""
-    last_name: Optional[str] = ""
-    dob: Optional[datetime.date] = ""
-    nationality: Optional[str] = ""
+    middle_name: Optional[str]
+    last_name: Optional[str]
+    dob: Optional[datetime.date]
+    nationality: Optional[str]
     time_created: datetime.date
 
     class Config:

@@ -105,3 +105,25 @@ async def delete_user(db: Session, user_id: int) -> Dict:
     await repository.delete_user(db=db, user_id=user_id)
 
     return {"message": "User successfully deleted."}
+
+
+async def create_address(
+        db: Session, address: schema.AddressBase) -> models.UserAddress:
+    """
+    Implement the endpoint to create a new user address.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        address: (schema.AddressBase):
+            the required address details.
+
+    Returns:
+    -------
+        UserAddress: the newly created address
+    """
+    user_id = 1
+    new_address = schema.AddressCreate(**address.dict(), user_id=user_id)
+
+    return await repository.create_address(db=db, address=new_address)

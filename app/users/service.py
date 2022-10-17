@@ -60,3 +60,27 @@ async def create_user(
             the newly created user details
     """
     return await repository.create_user(db=db, user=user)
+
+
+async def update_user(
+        db: Session,
+        user_id: int,
+        user: schema.UserUpdate
+) -> models.User:
+    """
+    Implement endpoint to update user details.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user_id: int
+            the id of the user to be updated
+        user: (schema.UserUpdate):
+            the updated user details.
+
+    Returns:
+    -------
+        User: the updated user details
+    """
+    return await repository.update_user(db=db, user_id=user_id, user=user)

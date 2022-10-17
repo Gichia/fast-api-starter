@@ -8,9 +8,6 @@ on:
   # Run tests for any PRs.
   pull_request:
 
-env:
-  DB_URI: "sqlite:///./test.db"
-
 #Setup workflows to be tested sequentially
 jobs:
   build:
@@ -39,5 +36,7 @@ jobs:
 
       # Task for testing with pytest
       - name: Test with pytest
+        env:
+          DB_URI: ${{ secrets.DB_URI }}
         run: |
           pytest

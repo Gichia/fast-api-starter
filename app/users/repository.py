@@ -20,6 +20,7 @@ Misc variables:
 from sqlalchemy.orm import Session
 
 from app import models
+from app.users import schema
 
 
 async def get_users(
@@ -42,3 +43,27 @@ async def get_users(
                 the app users existing in the db.
     """
     return db.query(models.User).offset(skip).limit(limit).all()
+
+
+async def create_user(
+        db: Session, user: schema.UserCreate) -> models.User:
+    """
+    Save a new user details to the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user: (schema.UserCreate):
+            the default user details.
+
+    Returns:
+    -------
+        User:
+            the newly created user details
+    """
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user

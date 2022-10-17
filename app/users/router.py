@@ -17,7 +17,13 @@ Misc variables:
         endpoint methods.
 """
 
-from fastapi import APIRouter, status
+from sqlalchemy.orm import Session
+from fastapi import Depends, APIRouter, status
+
+from app import database
+from app.users import service, schema
+
+get_db = database.get_db
 
 router = APIRouter(
     prefix="/users",
@@ -25,8 +31,14 @@ router = APIRouter(
 )
 
 
-@router.get("", status_code=status.HTTP_200_OK)
-def get_users(skip: int = 0, limit: int = 100):
+@router.get("",
+            status_code=status.HTTP_200_OK,
+            response_model=list[schema.UserShow])
+async def get_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+) -> list[schema.UserShow]:
     """
     Returns existing users list paginated as defined. 
 
@@ -42,4 +54,4 @@ def get_users(skip: int = 0, limit: int = 100):
             list[Users]:
                 the app users existing in the db.
     """
-    return []
+    return await service.get_users(db=db, skip=skip, limit=limit)

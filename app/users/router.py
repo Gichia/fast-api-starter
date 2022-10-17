@@ -119,3 +119,20 @@ async def update_user(
             the updated user details
     """
     return await service.update_user(db=db, user_id=user_id, user=request)
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_200_OK,)
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    """
+    Delete user details.
+
+    Parameters:
+    ----------
+        user_id:
+            the id of the user to be deleted
+
+    Returns:
+    -------
+        Dict: the success message
+    """
+    return await service.delete_user(db=db, user_id=user_id)

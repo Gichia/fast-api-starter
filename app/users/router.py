@@ -136,3 +136,32 @@ async def delete_user(user_id: int, db: Session = Depends(get_db)):
         Dict: the success message
     """
     return await service.delete_user(db=db, user_id=user_id)
+
+
+@router.post("/address",
+             tags=["Address"],
+             status_code=status.HTTP_201_CREATED,
+             response_model=schema.AddressShow)
+async def create_address(
+        request: schema.AddressBase, db: Session = Depends(get_db)):
+    """
+    Save a user address details to the database.
+
+    Parameters:
+    ----------
+        contry : str
+            the user's contry
+        city : str
+            the user's city
+        state : str
+            the user's state
+        province : str
+            the user's province
+        zip : int
+            the user's zip code
+
+    Returns:
+    -------
+        Address: the newly created address
+    """
+    return await service.create_address(db=db, address=request)

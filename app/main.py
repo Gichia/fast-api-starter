@@ -19,10 +19,17 @@ Misc variables:
 
 from fastapi import FastAPI
 
+from app.users import router as users
+
+
 app = FastAPI()
 
+app = FastAPI()
 
-@app.get("/")
+app.include_router(router=users.router)
+
+
+@app.get("/", tags=["Home"])
 def show_root():
     """
     Show the welcome message to the API users.

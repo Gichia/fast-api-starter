@@ -77,7 +77,8 @@ async def get_by_id(db: Session, user_id: int) -> models.User | None:
     ----------
         db: (Session):
             the database session to be used.
-        id: int
+        user_id: int
+            the id of the user to be fetched
 
     Returns:
     -------
@@ -163,3 +164,79 @@ async def create_address(
     db.commit()
     db.refresh(new_address)
     return new_address
+
+
+async def get_address_by_id(
+        db: Session, addr_id: int) -> models.UserAddress | None:
+    """
+    Return user address with the provided id if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        addr_id: int
+            the id of the address
+
+    Returns:
+    -------
+        UserAddress: the address details
+        None: if the address is not found.
+    """
+    address: models.UserAddress | None = db.query(models.UserAddress).filter(
+        models.UserAddress.id == addr_id).first()
+
+    return address
+
+
+async def update_address(
+        db: Session,
+        addr_id: int,
+        address: schema.AddressCreate
+) -> models.UserAddress:
+    """
+    Save updated address details in the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        addr_id: int
+            the id of the address to be updated
+        address: (schema.AddressCreate):
+            the updated address details.
+
+    Returns:
+    -------
+        UserAddress: the updated address details
+    """
+    db.query(models.UserAddress).filter(
+        models.UserAddress.id == addr_id).update(
+            {**address.dict()}, synchronize_session=False)
+
+    db.commit()
+
+    return await get_address_by_id(db=db, addr_id=addr_id)
+
+
+async def delete_address(db: Session, addr_id: int) -> None:
+    """
+    Remove address details from the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        addr_id: int
+            the id of the address to be deleted
+
+    Returns:
+    -------
+        None
+    """
+    db.query(models.UserAddress).filter(
+        models.UserAddress.id == addr_id).delete(synchronize_session=False)
+
+    db.commit()
+
+    return

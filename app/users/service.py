@@ -14,6 +14,7 @@ Misc variables:
 
     None
 """
+from genericpath import exists
 from typing import Dict
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -52,7 +53,8 @@ async def get_by_id(db: Session, user_id: int) -> models.User | None:
     ----------
         db: (Session):
             the database session to be used.
-        id: int
+        user_id: int
+            the id of the user to be fetched
 
     Returns:
     -------
@@ -156,3 +158,66 @@ async def create_address(
     new_address = schema.AddressCreate(**address.dict(), user_id=user_id)
 
     return await repository.create_address(db=db, address=new_address)
+
+
+async def get_address_by_id(
+        db: Session, addr_id: int) -> models.UserAddress | None:
+    """
+    Return user address with the provided id if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        addr_id: int
+            the id of the address
+
+    Returns:
+    -------
+        UserAddress: the address details
+
+    Raises
+    ------
+        NotFoundError: If the address is not found
+    """
+    address = await repository.get_address_by_id(db=db, addr_id=addr_id)
+
+    if not address:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Address with id '{addr_id}' not found.")
+
+    return address
+
+
+async def update_address(
+    db: Session,
+    addr_id: int,
+    address: schema.AddressBase
+) -> models.UserAddress:
+    """
+    Implement the endpoint to update address details.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        address: (schema.AddressBase):
+            the required address details.
+
+    Returns:
+    -------
+        UserAddress: the newly created address
+
+    Raises
+    ------
+        NotFoundError: If the address is not found
+    """
+    existing = await get_address_by_id(db=db, addr_id=addr_id)
+
+    upd_address = schema.AddressCreate(
+        **address.dict(),
+        user_id=existing.user_id,
+    )
+
+    return await repository.create_address(db=db, address=upd_address)

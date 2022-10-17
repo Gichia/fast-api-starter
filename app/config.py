@@ -28,6 +28,8 @@ class Settings(BaseSettings):
 
     Attributes
     ----------
+    DB_URI: str
+        the db uri string.
     APP_NAME : str
         the app name for the API will show up on docs page.
     DESCRIPTION : str
@@ -37,6 +39,7 @@ class Settings(BaseSettings):
     -------
     None
     """
+    DB_URI: str
     APP_NAME: str = "User Management API"
     DESCRIPTION: str = description
 

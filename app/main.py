@@ -20,6 +20,8 @@ from functools import lru_cache
 
 from fastapi import FastAPI, Depends
 
+from app import models
+from app.database import engine
 from app.config import Settings
 from app.users import router as users
 
@@ -36,6 +38,8 @@ app = FastAPI(title=settings.APP_NAME, description=settings.DESCRIPTION)
 app = FastAPI()
 
 app.include_router(router=users.router)
+
+models.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/", tags=["Home"])

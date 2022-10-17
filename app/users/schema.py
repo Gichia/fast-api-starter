@@ -123,3 +123,90 @@ class UserShow(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class AddressBase(BaseModel):
+    """
+    A class to represent a user address base object.
+    Defines the required attributes of a user address.
+    ...
+
+    Attributes
+    ----------
+    contry : str
+        the user's contry
+    city : str
+        the user's city
+    state : str
+        the user's state
+    province : str
+        the user's province
+    zip : int
+        the user's zip code
+
+    Methods
+    -------
+    None
+    """
+    contry: str
+    city: str
+    state: str
+    province: str
+    zip: int
+
+
+class AddressCreate(AddressBase):
+    """
+    A class to format details needed to create a new address.
+    Inherits from the AddressBase to get the default values.
+    ...
+
+    Attributes
+    ----------
+    user_id : int
+        the id of the user creating the address
+
+    Methods
+    -------
+    None
+    """
+    user_id: int
+
+
+class AddressShow(AddressCreate):
+    """
+    A class to format the user address for display.
+    ...
+
+    Attributes
+    ----------
+    id: int
+        the id of the address record
+    user_id: int
+        the id of the user who created the address
+    contry : str
+        the user's contry
+    city : str
+        the user's city
+    state : str
+        the user's state
+    province : str
+        the user's province
+    zip : int
+        the user's zip code
+
+    Methods
+    -------
+    None
+    """
+    id: int
+    user_id: int
+    contry: str
+    city: str
+    state: str
+    province: str
+    zip: int
+    time_created: datetime.date
+
+    class Config:
+        orm_mode = True

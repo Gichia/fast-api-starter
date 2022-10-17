@@ -2,7 +2,11 @@ name: SokoFresh API
 
 on:
   push:
-    branches: [develop]
+    branches:
+      - develop
+
+  # Run tests for any PRs.
+  pull_request:
 
 #Setup workflows to be tested sequentially
 jobs:

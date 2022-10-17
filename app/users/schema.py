@@ -210,3 +210,24 @@ class AddressShow(AddressCreate):
 
     class Config:
         orm_mode = True
+
+
+class UserDetailsShow(UserShow):
+    """
+    A class to format how a details user object is returned as json.
+    ...
+
+    Attributes
+    ----------
+    all the profile details for the user
+
+    addresses: all addresses created by the user
+
+    Methods
+    -------
+    None
+    """
+    addresses: list[AddressShow]
+
+    class Config:
+        orm_mode = True

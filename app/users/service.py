@@ -14,6 +14,7 @@ Misc variables:
 
     None
 """
+from typing import Dict
 from sqlalchemy.orm import Session
 
 from app import models
@@ -84,3 +85,23 @@ async def update_user(
         User: the updated user details
     """
     return await repository.update_user(db=db, user_id=user_id, user=user)
+
+
+async def delete_user(db: Session, user_id: int) -> Dict:
+    """
+    Implement the endpoint to delete user details.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user_id: int
+            the id of the user to be deleted
+
+    Returns:
+    -------
+        None
+    """
+    await repository.delete_user(db=db, user_id=user_id)
+
+    return {"message": "User successfully deleted."}

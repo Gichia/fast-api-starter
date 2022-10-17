@@ -67,3 +67,54 @@ async def create_user(
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+async def get_by_id(db: Session, user_id: int) -> models.User | None:
+    """
+    Return a user with the provided id if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        id: int
+
+    Returns:
+    -------
+        User: the user details
+        None: if the user is not found.
+    """
+    user: models.User | None = db.query(models.User).filter(
+        models.User.id == user_id).first()
+
+    return user
+
+
+async def update_user(
+        db: Session,
+        user_id: int,
+        user: schema.UserUpdate
+) -> models.User:
+    """
+    Save updated user details in the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user_id: int
+            the id of the user to be updated
+        user: (schema.UserUpdate):
+            the updated user details.
+
+    Returns:
+    -------
+        User:
+            the updated user details
+    """
+    db.query(models.User).filter(models.User.id ==
+                                 user_id).update({**user.dict()},
+                                                 synchronize_session=False)
+    db.commit()
+
+    return await get_by_id(db=db, user_id=user_id)

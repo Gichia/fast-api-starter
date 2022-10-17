@@ -40,3 +40,23 @@ async def get_users(
                 the app users existing in the db.
     """
     return await repository.get_users(db=db, skip=skip, limit=limit)
+
+
+async def create_user(
+        db: Session, user: schema.UserCreate) -> models.User:
+    """
+    Save a new user details to the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user: (schema.UserCreate):
+            the default user details.
+
+    Returns:
+    -------
+        User:
+            the newly created user details
+    """
+    return await repository.create_user(db=db, user=user)

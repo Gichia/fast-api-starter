@@ -82,3 +82,40 @@ async def create_user(
             the newly created user details
     """
     return await service.create_user(db=db, user=request)
+
+
+@router.put("/{user_id}",
+            status_code=status.HTTP_200_OK,
+            response_model=schema.UserShow)
+async def update_user(
+        user_id: int,
+        request: schema.UserUpdate,
+        db: Session = Depends(get_db)):
+    """
+    Update user details.
+
+    Parameters:
+    ----------
+        email : str
+            the email of a user
+        first_name : str
+            the first name of a user
+        phone_number : str
+            the phone number of a user
+        password : str
+            the user's password
+        middle_name: str
+            the middle name of a user
+        last_name: str
+            the user's last name
+        dob: str
+            the user's date of birth
+        nationality:
+            the user's nationality/country
+
+    Returns:
+    -------
+        User:
+            the updated user details
+    """
+    return await service.update_user(db=db, user_id=user_id, user=request)

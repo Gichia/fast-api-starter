@@ -84,6 +84,30 @@ async def create_user(
     return await service.create_user(db=db, user=request)
 
 
+@router.get("/{user_id}",
+            status_code=status.HTTP_200_OK,
+            response_model=schema.UserDetailsShow)
+async def get_user(
+        user_id: int,
+        db: Session = Depends(get_db)):
+    """
+    Get user details.
+
+    Parameters:
+    ----------
+        user_id: the id of the user to be fetched
+
+    Returns:
+    -------
+        User: the user details if they exist
+
+    Raises
+    ------
+        NotFoundError: If the user does not exist
+    """
+    return await service.get_by_id(db=db, user_id=user_id)
+
+
 @router.put("/{user_id}",
             status_code=status.HTTP_200_OK,
             response_model=schema.UserShow)

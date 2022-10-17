@@ -45,6 +45,24 @@ class UserBase(BaseModel):
     phone_number: str
 
 
+class UserCreate(UserBase):
+    """
+    A class to format details needed to create a new user.
+    Inherits from the UserBase to get the default values.
+    ...
+
+    Attributes
+    ----------
+    password : str
+        the password of a user
+
+    Methods
+    -------
+    None
+    """
+    password: str
+
+
 class UserShow(UserBase):
     """
     A class to format how a user object is returned as json.
@@ -75,3 +93,6 @@ class UserShow(UserBase):
     dob: Optional[datetime.date] = ""
     nationality: Optional[str] = ""
     time_created: datetime.date
+
+    class Config:
+        orm_mode = True

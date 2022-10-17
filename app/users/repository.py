@@ -140,3 +140,26 @@ async def delete_user(db: Session, user_id: int) -> None:
     db.commit()
 
     return
+
+
+async def create_address(
+        db: Session, address: schema.AddressCreate) -> models.UserAddress:
+    """
+    Save a new user address to the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        address: (schema.AddressCreate):
+            the required address details.
+
+    Returns:
+    -------
+        UserAddress: the newly created address
+    """
+    new_address = models.UserAddress(**address.dict())
+    db.add(new_address)
+    db.commit()
+    db.refresh(new_address)
+    return new_address

@@ -12,9 +12,11 @@ Misc variables:
     None
 """
 from sqlalchemy.sql import func
-from app.database import Base
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column, Integer, String, Date, Boolean, ForeignKey, DateTime)
+
+from app.database import Base
 
 
 class User(Base):
@@ -31,6 +33,23 @@ class User(Base):
     nationality = Column(String)
     confirmed = Column(Boolean, default=False)
     policy_agreed = Column(Boolean, default=False)
-    modifierid = Column(Integer, ForeignKey("users.id"))
     time_created = Column(DateTime, server_default=func.now())
     time_updated = Column(DateTime, onupdate=func.now())
+
+    addresses = relationship("UserAddress", back_populates="creator")
+
+
+class UserAddress(Base):
+    __tablename__ = "user_address"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    contry = Column(String)
+    city = Column(String)
+    state = Column(String)
+    province = Column(String)
+    zip = Column(Integer)
+    time_created = Column(DateTime, server_default=func.now())
+    time_updated = Column(DateTime, onupdate=func.now())
+
+    creator = relationship("User", back_populates="addresses")

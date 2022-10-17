@@ -118,3 +118,25 @@ async def update_user(
     db.commit()
 
     return await get_by_id(db=db, user_id=user_id)
+
+
+async def delete_user(db: Session, user_id: int) -> None:
+    """
+    Remove user details in the database.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user_id: int
+            the id of the user to be deleted
+
+    Returns:
+    -------
+        None
+    """
+    db.query(models.User).filter(models.User.id ==
+                                 user_id).delete(synchronize_session=False)
+    db.commit()
+
+    return

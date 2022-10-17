@@ -16,6 +16,7 @@ Misc variables:
 """
 from typing import Dict
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 
 from app import models
 from app.users import schema, repository
@@ -41,6 +42,34 @@ async def get_users(
                 the app users existing in the db.
     """
     return await repository.get_users(db=db, skip=skip, limit=limit)
+
+
+async def get_by_id(db: Session, user_id: int) -> models.User | None:
+    """
+    Return a user with the provided id if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        id: int
+
+    Returns:
+    -------
+        User: the user details
+
+    Raises
+    ------
+        NotFoundError: If the user is not found
+    """
+    user = await repository.get_by_id(db=db, user_id=user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id '{user_id}' not found.")
+
+    return user
 
 
 async def create_user(

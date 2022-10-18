@@ -96,6 +96,44 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    """
+    Method to get the current logged in user.
+    Decodes the token and returns the sub which is the email.
+
+    Parameters:
+    ----------
+        token: str
+            the access token provided
+
+    Returns:
+    -------
+        email: The email of the logged in user
+
+    Raises
+    ------
+        HTTPException:
+            if the token is invalid or has expired
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token,
+                             settings.SECRET_KEY,
+                             algorithms=[settings.ALGORITHM]
+                             )
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    return email
+
+
 async def register_user(
         db: Session, user: schema.UserCreate) -> models.User:
     """

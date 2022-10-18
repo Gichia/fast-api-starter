@@ -239,6 +239,32 @@ class AddressShow(AddressCreate):
         orm_mode = True
 
 
+class ValueChainShow(BaseModel):
+    """
+    A class to format how a value chain object is returned as json.
+    ...
+
+    Attributes
+    ----------
+    id: int
+        the generated  id
+    name : str
+        the name of the value chain
+    time_created: str
+        the date it was created
+
+    Methods
+    -------
+    None
+    """
+    id: int
+    name: str
+    time_created: datetime.date
+
+    class Config:
+        orm_mode = True
+
+
 class UserDetailsShow(UserShow):
     """
     A class to format how a details user object is returned as json.
@@ -249,12 +275,14 @@ class UserDetailsShow(UserShow):
     all the profile details for the user
 
     addresses: all addresses created by the user
+    value_chains: all value chains created by the user
 
     Methods
     -------
     None
     """
     addresses: list[AddressShow]
+    value_chains: list[ValueChainShow]
 
     class Config:
         orm_mode = True

@@ -25,6 +25,7 @@ from app.database import engine
 from app.config import Settings
 from app.auth import router as auth
 from app.users import router as users
+from app.value_chains import router as value_chains
 
 
 @lru_cache()
@@ -40,6 +41,7 @@ app = FastAPI()
 
 app.include_router(router=auth.router)
 app.include_router(router=users.router)
+app.include_router(router=value_chains.router)
 
 models.Base.metadata.create_all(bind=engine)
 

@@ -37,6 +37,7 @@ class User(Base):
     time_updated = Column(DateTime, onupdate=func.now())
 
     addresses = relationship("UserAddress", back_populates="creator")
+    value_chains = relationship("ValueChain", back_populates="creator")
 
 
 class UserAddress(Base):
@@ -53,3 +54,15 @@ class UserAddress(Base):
     time_updated = Column(DateTime, onupdate=func.now())
 
     creator = relationship("User", back_populates="addresses")
+
+
+class ValueChain(Base):
+    __tablename__ = "value_chain"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    name = Column(String)
+    time_created = Column(DateTime, server_default=func.now())
+    time_updated = Column(DateTime, onupdate=func.now())
+
+    creator = relationship("User", back_populates="value_chains")

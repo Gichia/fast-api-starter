@@ -43,6 +43,24 @@ def create_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Method to verify if passwords match
+
+    Parameters:
+    ----------
+        plain_password: str:
+            the plain text password.
+        hashed_password: str
+            the hashed password
+
+    Returns:
+    -------
+        bool: True if the password match False if not
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
+
 async def register_user(
         db: Session, user: schema.UserCreate) -> models.User:
     """

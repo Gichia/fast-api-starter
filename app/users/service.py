@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from app import models
+from app.confirmations import CONFIRMATIONS
 from app.users import schema, repository
 
 
@@ -147,6 +148,39 @@ async def update_user(
 
     return await repository.update_user(
         db=db, user_id=current_user.id, user=user)
+
+
+async def confirm_user(
+        db: Session, user_id: str, passcode: int) -> models.User:
+    """
+    Implement endpoint to confirm user email.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        passcode: int
+            the passcode provided by the user
+        user_id: int
+            the user id to be confirmed
+
+    Returns:
+    -------
+        User: the updated user details
+    """
+    user = await get_by_id(db=db, user_id=user_id)
+    print(CONFIRMATIONS)
+
+    is_true = next((
+        i for i in CONFIRMATIONS if i["user_email"] == user.email), None)
+
+
+    if not is_true or is_true["passcode"] != passcode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The passcode provided is inaccurate.")
+
+    return await repository.confirm_user(db=db, user_id=user_id)
 
 
 async def delete_user(db: Session, email: str) -> Dict:

@@ -39,5 +39,8 @@ jobs:
         env:
           DB_URI: ${{ secrets.DB_URI }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
         run: |
           pytest

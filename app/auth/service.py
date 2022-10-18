@@ -16,10 +16,31 @@ Misc variables:
 """
 from typing import Dict
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 from fastapi import HTTPException, status
 
 from app import models
 from app.users import schema, service, repository
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def create_password_hash(password: str) -> str:
+    """
+    Return a password hash
+
+    Parameters:
+    ----------
+        password: str:
+            the password to be hashed.
+
+    Returns:
+    -------
+        hashed_password:
+            the hashed password
+    """
+    return pwd_context.hash(password)
 
 
 async def register_user(
@@ -46,5 +67,8 @@ async def register_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="That email is already in use",
         )
+
+    hashed_password = create_password_hash(password=user.password)
+    user.password = hashed_password
 
     return await service.create_user(db=db, user=user)

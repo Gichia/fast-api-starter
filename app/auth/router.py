@@ -21,6 +21,7 @@ Misc variables:
 
 from sqlalchemy.orm import Session
 from fastapi import Depends, APIRouter, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app import database
 from app.users import schema
@@ -53,3 +54,13 @@ async def register_user(
         User: the newly created user details
     """
     return await service.register_user(db=db, user=request)
+
+
+@router.post("/login",
+             response_model=schema.Token,
+             status_code=status.HTTP_200_OK)
+async def login(
+        request: OAuth2PasswordRequestForm = Depends(),
+        db: Session = Depends(get_db)):
+    return await service.login(
+        email=request.username, plain_password=request.password, db=db)

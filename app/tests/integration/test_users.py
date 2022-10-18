@@ -14,7 +14,6 @@ async def test_user_crud():
         first_name="Test",
         email="test@test.com",
         password="password",
-        phone_number="254xxxxxxxx"
     )
 
     await repository.delete_user(db=db, user_id=1)
@@ -25,7 +24,6 @@ async def test_user_crud():
     assert data.first_name == "Test"
     assert data.password == "password"
     assert data.email == "test@test.com"
-    assert data.phone_number == "254xxxxxxxx"
 
     user_data = await repository.get_by_id(db=db, user_id=1)
 
@@ -33,7 +31,6 @@ async def test_user_crud():
     assert user_data.first_name == "Test"
     assert user_data.password == "password"
     assert user_data.email == "test@test.com"
-    assert user_data.phone_number == "254xxxxxxxx"
 
     users = await repository.get_users(db=db)
 

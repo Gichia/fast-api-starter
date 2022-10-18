@@ -57,33 +57,6 @@ async def get_users(
     return await service.get_users(db=db, skip=skip, limit=limit)
 
 
-@router.post("",
-             status_code=status.HTTP_201_CREATED,
-             response_model=schema.UserShow)
-async def create_user(
-        request: schema.UserCreate, db: Session = Depends(get_db)):
-    """
-    Save a new user details to the database.
-
-    Parameters:
-    ----------
-        email : str
-            the email of a user
-        first_name : str
-            the first name of a user
-        phone_number : str
-            the phone number of a user
-        password : str
-            the user's password
-
-    Returns:
-    -------
-        User:
-            the newly created user details
-    """
-    return await service.create_user(db=db, user=request)
-
-
 @router.get("/{user_id}",
             status_code=status.HTTP_200_OK,
             response_model=schema.UserDetailsShow)

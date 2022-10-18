@@ -41,8 +41,12 @@ class Settings(BaseSettings):
     """
     DB_URI: str
     SECRET_KEY: str
+    FROM_EMAIL: str
+    MAILGUN_DOMAIN: str
+    MAILGUN_API_KEY: str
     ALGORITHM: str = "HS256"
     DESCRIPTION: str = description
+    FROM_TITLE: str = "Farmers API"
     APP_NAME: str = "User Management API"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 59
 

@@ -172,7 +172,10 @@ async def delete_user(db: Session, email: str) -> Dict:
 
 
 async def create_address(
-        db: Session, address: schema.AddressBase) -> models.UserAddress:
+        db: Session,
+        email: str,
+        address: schema.AddressBase,
+) -> models.UserAddress:
     """
     Implement the endpoint to create a new user address.
 
@@ -180,6 +183,8 @@ async def create_address(
     ----------
         db: (Session):
             the database session to be used.
+        email: str
+            the logged in user email
         address: (schema.AddressBase):
             the required address details.
 
@@ -187,8 +192,10 @@ async def create_address(
     -------
         UserAddress: the newly created address
     """
-    user_id = 1
-    new_address = schema.AddressCreate(**address.dict(), user_id=user_id)
+    current_user = await get_by_email(db=db, email=email)
+
+    new_address = schema.AddressCreate(
+        **address.dict(), user_id=current_user.id)
 
     return await repository.create_address(db=db, address=new_address)
 
@@ -225,6 +232,7 @@ async def get_address_by_id(
 
 async def update_address(
     db: Session,
+    email: str,
     addr_id: int,
     address: schema.AddressBase
 ) -> models.UserAddress:
@@ -235,6 +243,10 @@ async def update_address(
     ----------
         db: (Session):
             the database session to be used.
+        email: str
+            the logged in user email
+        addr_id: int
+            the id of the address to be updated
         address: (schema.AddressBase):
             the required address details.
 
@@ -246,11 +258,55 @@ async def update_address(
     ------
         NotFoundError: If the address is not found
     """
+    current_user = await get_by_email(db=db, email=email)
+
     existing = await get_address_by_id(db=db, addr_id=addr_id)
+
+    if current_user.id != existing.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Address not found.")
 
     upd_address = schema.AddressCreate(
         **address.dict(),
         user_id=existing.user_id,
     )
 
-    return await repository.create_address(db=db, address=upd_address)
+    return await repository.update_address(
+        db=db, addr_id=addr_id, address=upd_address)
+
+
+async def delete_address(db: Session, email: str, addr_id: int) -> Dict:
+    """
+    Implement the endpoint to delete address.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        email: str
+            the logged in user email
+        addr_id: int
+            the id of the address to be deleted
+
+    Returns:
+    -------
+        Dict: the success message
+
+    Raises
+    ------
+        NotFoundError:
+            If the address is not found or does not belong to loggedin user
+    """
+    current_user = await get_by_email(db=db, email=email)
+
+    existing = await get_address_by_id(db=db, addr_id=addr_id)
+
+    if current_user.id != existing.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Address not found.")
+
+    await repository.delete_address(db=db, addr_id=addr_id)
+
+    return {"message": "The address has been successfully deleted"}

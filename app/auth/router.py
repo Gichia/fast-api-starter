@@ -23,7 +23,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, APIRouter, status
 
 from app import database
-from app.users import service, schema
+from app.users import schema
+from app.auth import service
 
 get_db = database.get_db
 
@@ -32,8 +33,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register",
              status_code=status.HTTP_201_CREATED,
-            #  response_model=schema.UserShow
-             )
+             response_model=schema.UserShow)
 async def register_user(
         request: schema.UserCreate, db: Session = Depends(get_db)):
     """
@@ -52,4 +52,4 @@ async def register_user(
     -------
         User: the newly created user details
     """
-    return "Hello"
+    return await service.register_user(db=db, user=request)

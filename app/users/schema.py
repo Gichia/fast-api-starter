@@ -21,6 +21,29 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class Token(BaseModel):
+    """
+    A class to represent token details after user has logged in.
+    ...
+
+    Attributes
+    ----------
+    access_token : str
+        the JWT access token
+    token_type : str
+        the token type `Bearer`
+    expires_in : int
+        the number of minutes that the token is valid for
+
+    Methods
+    -------
+    None
+    """
+    access_token: str
+    token_type: str
+    expires_in: int
+
+
 class UserBase(BaseModel):
     """
     A class to represent a user base object.
@@ -40,6 +63,7 @@ class UserBase(BaseModel):
     -------
     None
     """
+    email: str
     first_name: str
     middle_name: str
     last_name: str

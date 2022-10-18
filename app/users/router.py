@@ -142,7 +142,10 @@ async def delete_user(
              status_code=status.HTTP_201_CREATED,
              response_model=schema.AddressShow)
 async def create_address(
-        request: schema.AddressBase, db: Session = Depends(get_db)):
+    request: schema.AddressBase,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
     Save a user address details to the database.
 
@@ -163,4 +166,66 @@ async def create_address(
     -------
         Address: the newly created address
     """
-    return await service.create_address(db=db, address=request)
+    return await service.create_address(db=db, email=email, address=request)
+
+
+@router.put("/address/{addr_id}",
+            tags=["Address"],
+            status_code=status.HTTP_200_OK,
+            response_model=schema.AddressShow)
+async def update_address(
+    addr_id: int,
+    request: schema.AddressBase,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update user address details
+
+    Parameters:
+    ----------
+        contry : str
+            the user's contry
+        city : str
+            the user's city
+        state : str
+            the user's state
+        province : str
+            the user's province
+        zip : int
+            the user's zip code
+
+    Returns:
+    -------
+        Address: the newly created address
+
+    Raises
+    ------
+        NotFoundError: If the address does not exist
+    """
+    return await service.update_address(
+        db=db, email=email, addr_id=addr_id, address=request)
+
+
+@router.delete("/address/{addr_id}",
+               tags=["Address"],
+               status_code=status.HTTP_200_OK
+               )
+async def delete_address(
+    addr_id: int,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete user address record
+
+    Parameters:
+    ----------
+        addr_id: int
+            the id of the address to be deleted 
+
+    Returns:
+    -------
+        Dict: the success message
+    """
+    return await service.delete_address(db=db, email=email, addr_id=addr_id)

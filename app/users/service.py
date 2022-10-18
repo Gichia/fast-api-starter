@@ -124,7 +124,7 @@ async def create_user(
 
 async def update_user(
         db: Session,
-        user_id: int,
+        email: str,
         user: schema.UserUpdate
 ) -> models.User:
     """
@@ -134,8 +134,8 @@ async def update_user(
     ----------
         db: (Session):
             the database session to be used.
-        user_id: int
-            the id of the user to be updated
+        email: str
+            the logged in user email
         user: (schema.UserUpdate):
             the updated user details.
 
@@ -143,10 +143,13 @@ async def update_user(
     -------
         User: the updated user details
     """
-    return await repository.update_user(db=db, user_id=user_id, user=user)
+    current_user = await get_by_email(db=db, email=email)
+
+    return await repository.update_user(
+        db=db, user_id=current_user.id, user=user)
 
 
-async def delete_user(db: Session, user_id: int) -> Dict:
+async def delete_user(db: Session, email: str) -> Dict:
     """
     Implement the endpoint to delete user details.
 
@@ -154,14 +157,16 @@ async def delete_user(db: Session, user_id: int) -> Dict:
     ----------
         db: (Session):
             the database session to be used.
-        user_id: int
-            the id of the user to be deleted
+        email: str
+            the logged in user email
 
     Returns:
     -------
         None
     """
-    await repository.delete_user(db=db, user_id=user_id)
+    current_user = await get_by_email(db=db, email=email)
+
+    await repository.delete_user(db=db, user_id=current_user.id)
 
     return {"message": "User successfully deleted."}
 

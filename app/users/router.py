@@ -22,16 +22,18 @@ from fastapi import Depends, APIRouter, status
 
 from app import database
 from app.users import service, schema
+from app.auth.service import get_current_user
 
 get_db = database.get_db
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"],
+    dependencies=[Depends(get_current_user)],
 )
 
 
 @router.get("",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=list[schema.UserShow])
 async def get_users(
@@ -58,6 +60,7 @@ async def get_users(
 
 
 @router.get("/{user_id}",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=schema.UserDetailsShow)
 async def get_user(
@@ -81,20 +84,19 @@ async def get_user(
     return await service.get_by_id(db=db, user_id=user_id)
 
 
-@router.put("/{user_id}",
+@router.put("",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=schema.UserShow)
 async def update_user(
-        user_id: int,
         request: schema.UserUpdate,
+        email=Depends(get_current_user),
         db: Session = Depends(get_db)):
     """
     Update user details.
 
     Parameters:
     ----------
-        email : str
-            the email of a user
         first_name : str
             the first name of a user
         phone_number : str
@@ -115,24 +117,24 @@ async def update_user(
         User:
             the updated user details
     """
-    return await service.update_user(db=db, user_id=user_id, user=request)
+    return await service.update_user(db=db, email=email, user=request)
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK,)
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+@router.delete("", tags=["Users"], status_code=status.HTTP_200_OK)
+async def delete_user(
+        email=Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Delete user details.
 
     Parameters:
     ----------
-        user_id:
-            the id of the user to be deleted
+        None
 
     Returns:
     -------
         Dict: the success message
     """
-    return await service.delete_user(db=db, user_id=user_id)
+    return await service.delete_user(db=db, email=email)
 
 
 @router.post("/address",

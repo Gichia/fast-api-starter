@@ -91,6 +91,28 @@ async def get_by_id(db: Session, user_id: int) -> models.User | None:
     return user
 
 
+async def get_by_email(db: Session, email: str) -> models.User | None:
+    """
+    Return a user with the provided email if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        email: str
+            the email of the user to be fetched
+
+    Returns:
+    -------
+        User: the user details
+        None: if the user is not found.
+    """
+    user: models.User | None = db.query(models.User).filter(
+        models.User.email == email).first()
+
+    return user
+
+
 async def update_user(
         db: Session,
         user_id: int,

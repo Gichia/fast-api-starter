@@ -14,7 +14,6 @@ Misc variables:
 
     None
 """
-from genericpath import exists
 from typing import Dict
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -70,6 +69,35 @@ async def get_by_id(db: Session, user_id: int) -> models.User | None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with id '{user_id}' not found.")
+
+    return user
+
+
+async def get_by_email(db: Session, email: str) -> models.User | None:
+    """
+    Return a user with the provided email if they exist.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        email: str
+            the email of the user to be fetched
+
+    Returns:
+    -------
+        User: the user details
+
+    Raises
+    ------
+        NotFoundError: If the user is not found
+    """
+    user = await repository.get_by_email(db=db, email=email)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with email '{email}' not found.")
 
     return user
 

@@ -16,7 +16,9 @@ Misc variables:
 """
 from typing import Dict
 from sqlalchemy.orm import Session
+from phonenumbers import carrier, parse
 from fastapi import HTTPException, status
+from phonenumbers.phonenumberutil import number_type, NumberParseException
 
 from app import models
 from app.confirmations import CONFIRMATIONS
@@ -144,10 +146,26 @@ async def update_user(
     -------
         User: the updated user details
     """
-    current_user = await get_by_email(db=db, email=email)
+    try:
+        current_user = await get_by_email(db=db, email=email)
 
-    return await repository.update_user(
-        db=db, user_id=current_user.id, user=user)
+        if user.phone_number:
+            if len(user.phone_number) < 10 \
+                or len(user.phone_number) > 13 \
+                    or not parse(user.phone_number, "KE"):
+                raise NumberParseException(error_type=1, msg="")
+
+        return await repository.update_user(
+            db=db, user_id=current_user.id, user=user)
+    except NumberParseException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Phone number is not valid")
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="There was an unexpected error. Please try again",
+        )
 
 
 async def confirm_user(
@@ -173,7 +191,6 @@ async def confirm_user(
 
     is_true = next((
         i for i in CONFIRMATIONS if i["user_email"] == user.email), None)
-
 
     if not is_true or is_true["passcode"] != passcode:
         raise HTTPException(

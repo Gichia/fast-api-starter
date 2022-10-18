@@ -134,6 +134,8 @@ class UserShow(UserBase):
         the user's date of birth
     nationality: str
         the user's nationality
+    confirmed: bool
+        indicate whether the user has confirmed their email
 
     Methods
     -------
@@ -146,6 +148,7 @@ class UserShow(UserBase):
     phone_number: Optional[str]
     dob: Optional[datetime.date]
     nationality: Optional[str]
+    confirmed: bool
     time_created: datetime.date
 
     class Config:

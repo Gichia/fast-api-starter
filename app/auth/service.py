@@ -201,6 +201,11 @@ async def login(email: str, plain_password: str, db: Session):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials")
 
+    if not user.confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You have not confirmed the email, please check your email")
+
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 

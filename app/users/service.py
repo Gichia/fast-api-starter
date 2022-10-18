@@ -16,9 +16,9 @@ Misc variables:
 """
 from typing import Dict
 from sqlalchemy.orm import Session
-from phonenumbers import carrier, parse
+from phonenumbers import parse
 from fastapi import HTTPException, status
-from phonenumbers.phonenumberutil import number_type, NumberParseException
+from phonenumbers.phonenumberutil import NumberParseException
 
 from app import models
 from app.confirmations import CONFIRMATIONS

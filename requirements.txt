@@ -21,6 +21,7 @@ iniconfig==1.1.1
 outcome==1.2.0
 packaging==21.3
 passlib==1.7.4
+phonenumbers==8.12.57
 pluggy==1.0.0
 py==1.11.0
 pyasn1==0.4.8

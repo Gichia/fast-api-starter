@@ -63,7 +63,6 @@ class UserBase(BaseModel):
     -------
     None
     """
-    email: str
     first_name: str
     middle_name: str
     last_name: str
@@ -141,6 +140,7 @@ class UserShow(UserBase):
     None
     """
     id: int
+    email: str
     middle_name: Optional[str]
     last_name: Optional[str]
     phone_number: Optional[str]

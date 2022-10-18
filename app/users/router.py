@@ -26,10 +26,7 @@ from app.auth.service import get_current_user
 
 get_db = database.get_db
 
-router = APIRouter(
-    prefix="/users",
-    dependencies=[Depends(get_current_user)],
-)
+router = APIRouter(prefix="/users")
 
 
 @router.get("",
@@ -39,6 +36,7 @@ router = APIRouter(
 async def get_users(
     skip: int = 0,
     limit: int = 100,
+    _=Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> list[schema.UserShow]:
     """
@@ -65,6 +63,7 @@ async def get_users(
             response_model=schema.UserDetailsShow)
 async def get_user(
         user_id: int,
+        _=Depends(get_current_user),
         db: Session = Depends(get_db)):
     """
     Get user details.
@@ -135,6 +134,33 @@ async def delete_user(
         Dict: the success message
     """
     return await service.delete_user(db=db, email=email)
+
+
+@router.put("/confirm/{user_id}",
+            tags=["Users"],
+            status_code=status.HTTP_200_OK,
+            response_model=schema.UserShow)
+async def confirm_user(
+        user_id: int,
+        passcode: int,
+        db: Session = Depends(get_db)):
+    """
+    Confirm user email.
+
+    Parameters:
+    ----------
+        passcode: int
+            the provided passcode
+        user_id: int
+            the id of the user to be confirmed
+
+    Returns:
+    -------
+        User:
+            the user details
+    """
+    return await service.confirm_user(
+        db=db, user_id=user_id, passcode=passcode)
 
 
 @router.post("/address",

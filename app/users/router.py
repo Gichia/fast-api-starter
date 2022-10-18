@@ -22,16 +22,18 @@ from fastapi import Depends, APIRouter, status
 
 from app import database
 from app.users import service, schema
+from app.auth.service import get_current_user
 
 get_db = database.get_db
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"],
+    dependencies=[Depends(get_current_user)],
 )
 
 
 @router.get("",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=list[schema.UserShow])
 async def get_users(
@@ -57,34 +59,8 @@ async def get_users(
     return await service.get_users(db=db, skip=skip, limit=limit)
 
 
-@router.post("",
-             status_code=status.HTTP_201_CREATED,
-             response_model=schema.UserShow)
-async def create_user(
-        request: schema.UserCreate, db: Session = Depends(get_db)):
-    """
-    Save a new user details to the database.
-
-    Parameters:
-    ----------
-        email : str
-            the email of a user
-        first_name : str
-            the first name of a user
-        phone_number : str
-            the phone number of a user
-        password : str
-            the user's password
-
-    Returns:
-    -------
-        User:
-            the newly created user details
-    """
-    return await service.create_user(db=db, user=request)
-
-
 @router.get("/{user_id}",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=schema.UserDetailsShow)
 async def get_user(
@@ -108,20 +84,19 @@ async def get_user(
     return await service.get_by_id(db=db, user_id=user_id)
 
 
-@router.put("/{user_id}",
+@router.put("",
+            tags=["Users"],
             status_code=status.HTTP_200_OK,
             response_model=schema.UserShow)
 async def update_user(
-        user_id: int,
         request: schema.UserUpdate,
+        email=Depends(get_current_user),
         db: Session = Depends(get_db)):
     """
     Update user details.
 
     Parameters:
     ----------
-        email : str
-            the email of a user
         first_name : str
             the first name of a user
         phone_number : str
@@ -142,24 +117,24 @@ async def update_user(
         User:
             the updated user details
     """
-    return await service.update_user(db=db, user_id=user_id, user=request)
+    return await service.update_user(db=db, email=email, user=request)
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK,)
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+@router.delete("", tags=["Users"], status_code=status.HTTP_200_OK)
+async def delete_user(
+        email=Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Delete user details.
 
     Parameters:
     ----------
-        user_id:
-            the id of the user to be deleted
+        None
 
     Returns:
     -------
         Dict: the success message
     """
-    return await service.delete_user(db=db, user_id=user_id)
+    return await service.delete_user(db=db, email=email)
 
 
 @router.post("/address",
@@ -167,7 +142,10 @@ async def delete_user(user_id: int, db: Session = Depends(get_db)):
              status_code=status.HTTP_201_CREATED,
              response_model=schema.AddressShow)
 async def create_address(
-        request: schema.AddressBase, db: Session = Depends(get_db)):
+    request: schema.AddressBase,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
     Save a user address details to the database.
 
@@ -188,4 +166,66 @@ async def create_address(
     -------
         Address: the newly created address
     """
-    return await service.create_address(db=db, address=request)
+    return await service.create_address(db=db, email=email, address=request)
+
+
+@router.put("/address/{addr_id}",
+            tags=["Address"],
+            status_code=status.HTTP_200_OK,
+            response_model=schema.AddressShow)
+async def update_address(
+    addr_id: int,
+    request: schema.AddressBase,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update user address details
+
+    Parameters:
+    ----------
+        contry : str
+            the user's contry
+        city : str
+            the user's city
+        state : str
+            the user's state
+        province : str
+            the user's province
+        zip : int
+            the user's zip code
+
+    Returns:
+    -------
+        Address: the newly created address
+
+    Raises
+    ------
+        NotFoundError: If the address does not exist
+    """
+    return await service.update_address(
+        db=db, email=email, addr_id=addr_id, address=request)
+
+
+@router.delete("/address/{addr_id}",
+               tags=["Address"],
+               status_code=status.HTTP_200_OK
+               )
+async def delete_address(
+    addr_id: int,
+    email=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete user address record
+
+    Parameters:
+    ----------
+        addr_id: int
+            the id of the address to be deleted 
+
+    Returns:
+    -------
+        Dict: the success message
+    """
+    return await service.delete_address(db=db, email=email, addr_id=addr_id)

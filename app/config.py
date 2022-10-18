@@ -40,8 +40,11 @@ class Settings(BaseSettings):
     None
     """
     DB_URI: str
-    APP_NAME: str = "User Management API"
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
     DESCRIPTION: str = description
+    APP_NAME: str = "User Management API"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 59
 
     class Config:
         env_file = ".env"

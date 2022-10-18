@@ -21,6 +21,29 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class Token(BaseModel):
+    """
+    A class to represent token details after user has logged in.
+    ...
+
+    Attributes
+    ----------
+    access_token : str
+        the JWT access token
+    token_type : str
+        the token type `Bearer`
+    expires_in : int
+        the number of minutes that the token is valid for
+
+    Methods
+    -------
+    None
+    """
+    access_token: str
+    token_type: str
+    expires_in: int
+
+
 class UserBase(BaseModel):
     """
     A class to represent a user base object.
@@ -40,12 +63,15 @@ class UserBase(BaseModel):
     -------
     None
     """
-    email: str
     first_name: str
+    middle_name: str
+    last_name: str
+    dob: datetime.date
+    nationality: str
     phone_number: str
 
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
     """
     A class to format details needed to create a new user.
     Inherits from the UserBase to get the default values.
@@ -60,13 +86,15 @@ class UserCreate(UserBase):
     -------
     None
     """
+    first_name: str
+    email: str
     password: str
 
 
 class UserUpdate(UserBase):
     """
     A class to format details needed to create a new user.
-    Inherits from the UserCreate to get the default values.
+    Inherits from the UserBase to get the default values.
     ...
 
     Attributes
@@ -84,10 +112,7 @@ class UserUpdate(UserBase):
     -------
     None
     """
-    middle_name: str
-    last_name: str
-    dob: datetime.date
-    nationality: str
+    pass
 
 
 class UserShow(UserBase):
@@ -115,8 +140,10 @@ class UserShow(UserBase):
     None
     """
     id: int
+    email: str
     middle_name: Optional[str]
     last_name: Optional[str]
+    phone_number: Optional[str]
     dob: Optional[datetime.date]
     nationality: Optional[str]
     time_created: datetime.date

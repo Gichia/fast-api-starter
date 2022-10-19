@@ -183,8 +183,18 @@ async def delete_user(db: Session, user_id: int) -> None:
     -------
         None
     """
-    db.query(models.User).filter(models.User.id ==
-                                 user_id).delete(synchronize_session=False)
+    db.query(models.UserAddress).filter(
+        models.UserAddress.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    db.query(models.ValueChain).filter(
+        models.ValueChain.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    db.query(models.User).filter(
+        models.User.id == user_id
+    ).delete(synchronize_session=False)
+
     db.commit()
 
     return

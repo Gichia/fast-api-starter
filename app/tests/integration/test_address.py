@@ -2,6 +2,7 @@
 
 """
 import pytest
+import fastapi
 
 from app.users import repository, schema, service
 
@@ -73,57 +74,65 @@ async def test_service_crud():
         password="password",
     )
 
-    test_address = schema.AddressCreate(
+    test_address = schema.AddressBase(
         city="Nairobi",
         contry="Kenya",
         province="Province",
         state="",
-        user_id=1,
         zip=50089,
     )
 
-    update_address = schema.AddressCreate(
+    update_address = schema.AddressBase(
         city="Kampala",
         contry="Uganda",
         province="Province",
         state="Uganda",
-        user_id=1,
         zip=79689,
     )
 
+    await repository.delete_user(db=db, user_id=1)
     await repository.delete_address(db=db, addr_id=1)
+    await repository.create_user(db=db, user=test_user)
+
+    user = await service.get_by_id(db=db, user_id=1)
+
+    assert len(user.addresses) == 0
 
     data = await service.create_address(
         db=db, email=test_user.email, address=test_address)
 
-    # assert data.zip == 50089
-    # assert data.city == "Nairobi"
-    # assert data.contry == "Kenya"
-    # assert data.province == "Province"
+    assert data.zip == 50089
+    assert data.city == "Nairobi"
+    assert data.contry == "Kenya"
+    assert data.province == "Province"
 
-    # addr_data = await repository.get_address_by_id(db=db, addr_id=1)
+    user = await service.get_by_id(db=db, user_id=1)
 
-    # assert addr_data.id == 1
-    # assert addr_data.state == ""
-    # assert addr_data.user_id == 1
-    # assert addr_data.zip == 50089
-    # assert addr_data.city == "Nairobi"
-    # assert addr_data.contry == "Kenya"
-    # assert addr_data.province == "Province"
+    assert len(user.addresses) == 1
 
-    # address = await repository.update_address(
-    #     db=db, addr_id=1, address=update_address)
+    addr_data = await service.get_address_by_id(db=db, addr_id=1)
 
-    # assert address.id == 1
-    # assert address.user_id == 1
-    # assert address.zip == 79689
-    # assert address.state == "Uganda"
-    # assert address.city == "Kampala"
-    # assert address.contry == "Uganda"
-    # assert address.province == "Province"
+    assert addr_data.id == 1
+    assert addr_data.state == ""
+    assert addr_data.user_id == 1
+    assert addr_data.zip == 50089
+    assert addr_data.city == "Nairobi"
+    assert addr_data.contry == "Kenya"
+    assert addr_data.province == "Province"
 
-    # await repository.delete_address(db=db, addr_id=1)
+    address = await service.update_address(
+        db=db, email=test_user.email, addr_id=1, address=update_address)
 
-    # data = await repository.get_address_by_id(db=db, addr_id=1)
+    assert address.id == 1
+    assert address.user_id == 1
+    assert address.zip == 79689
+    assert address.state == "Uganda"
+    assert address.city == "Kampala"
+    assert address.contry == "Uganda"
+    assert address.province == "Province"
 
-    # assert data is None
+    await service.delete_address(db=db, email=test_user.email, addr_id=1)
+
+    with pytest.raises(fastapi.exceptions.HTTPException):
+        await service.get_address_by_id(db=db, addr_id=1)
+

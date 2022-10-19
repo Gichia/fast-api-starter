@@ -2,6 +2,7 @@
 
 """
 import pytest
+import fastapi
 
 from app.users import repository, schema, service
 
@@ -97,3 +98,6 @@ async def test_service_crud():
     data = await service.get_users(db=db)
 
     assert len(data) == 0
+
+    with pytest.raises(fastapi.exceptions.HTTPException):
+        await service.get_by_id(db=db, user_id=1)

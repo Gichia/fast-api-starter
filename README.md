@@ -64,6 +64,31 @@ The application docs can be accessed on a browser on the specified port.
 > When you run the application, you can also test the following endpoints using postman
 -----------------------------------------------
 
+# Run on Docker
+> The API is also shipped with docker files for easy installation. Requires only the `.env` file and you are good to go.
+
+Pre-requisites
+----------------------
+1. Docker
+2. Docker Compose
+
+Run the application
+---------------------------------
+```
+    docker-compose up
+```
+
+Access the application
+---------------------------------
+
+The application docs can be accessed on a browser on the specified port.
+```
+    http://localhost:8001/docs
+```
+
+## Test Live Version
+> A live version of the API can be accessed at `https://soko-fresh-challenge.herokuapp.com/docs`.
+
 **Unrestricted endpoints**
 
 | Endpoint | Functionality |

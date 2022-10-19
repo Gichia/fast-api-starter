@@ -247,9 +247,17 @@ async def login(email: str, plain_password: str, db: Session):
             detail="Invalid credentials")
 
     if not user.confirmed:
+        endpoint = f"/users/confirm/{user.id}"
+        message = f"A confirmation email was sent to '{user.email}'"
+        action = f"Go to the endpoint '{endpoint}' and provide the passcode"
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You have not confirmed the email, please check your email")
+            detail={
+                "message": message,
+                "action": action,
+            }
+        )
 
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

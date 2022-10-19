@@ -86,6 +86,9 @@ The application docs can be accessed on a browser on the specified port.
     http://localhost:8001/docs
 ```
 
+## Test Live Version
+> A live version of the API can be accessed at `https://soko-fresh-challenge.herokuapp.com/docs`.
+
 **Unrestricted endpoints**
 
 | Endpoint | Functionality |

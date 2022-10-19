@@ -21,8 +21,12 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
+from email_validator import validate_email, EmailNotValidError
 
 from app import models, config
+from app.libs.mailgun import Mailgun
+from app.libs.randomize import Randomize
+from app.confirmations import CONFIRMATIONS
 from app.users import schema, service, repository
 
 
@@ -151,18 +155,59 @@ async def register_user(
         User:
             the newly created user details
     """
-    existing_user = await repository.get_by_email(db=db, email=user.email)
+    try:
+        validation = validate_email(
+            email=user.email, check_deliverability=True)
 
-    if existing_user:
+        validation.email
+
+        existing_user = await repository.get_by_email(db=db, email=user.email)
+
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="That email is already in use",
+            )
+
+        hashed_password = create_password_hash(password=user.password)
+        user.password = hashed_password
+
+        passcode = await Randomize.generate_passcode()
+        details = {"user_email": user.email, "passcode": passcode}
+        CONFIRMATIONS.append(details)
+
+        await Mailgun.send_email(
+            emails=[user.email],
+            subject="Registration Confirmation",
+            html=f"""
+                <html><p>Your confirmation passcode is {passcode}</p></html>
+            """,
+        )
+
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="That email is already in use",
         )
+    except EmailNotValidError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The email provided is invalid",
+        )
+    except Exception as error:
+        print(error)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error in sending confirmation email",
+        )
 
-    hashed_password = create_password_hash(password=user.password)
-    user.password = hashed_password
+    user = await service.create_user(db=db, user=user)
+    endpoint = f"/users/confirm/{user.id}"
 
-    return await service.create_user(db=db, user=user)
+    return {
+        "message": f"A confirmation email was sent to '{user.email}'",
+        "action": f"Go to the endpoint '{endpoint}' and provide the passcode"
+    }
 
 
 async def login(email: str, plain_password: str, db: Session):
@@ -200,6 +245,11 @@ async def login(email: str, plain_password: str, db: Session):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials")
+
+    if not user.confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You have not confirmed the email, please check your email")
 
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

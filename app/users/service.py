@@ -16,9 +16,12 @@ Misc variables:
 """
 from typing import Dict
 from sqlalchemy.orm import Session
+from phonenumbers import parse
 from fastapi import HTTPException, status
+from phonenumbers.phonenumberutil import NumberParseException
 
 from app import models
+from app.confirmations import CONFIRMATIONS
 from app.users import schema, repository
 
 
@@ -143,10 +146,58 @@ async def update_user(
     -------
         User: the updated user details
     """
-    current_user = await get_by_email(db=db, email=email)
+    try:
+        current_user = await get_by_email(db=db, email=email)
 
-    return await repository.update_user(
-        db=db, user_id=current_user.id, user=user)
+        if user.phone_number:
+            if len(user.phone_number) < 10 \
+                or len(user.phone_number) > 13 \
+                    or not parse(user.phone_number, "KE"):
+                raise NumberParseException(error_type=1, msg="")
+
+        return await repository.update_user(
+            db=db, user_id=current_user.id, user=user)
+    except NumberParseException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Phone number is not valid")
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="There was an unexpected error. Please try again",
+        )
+
+
+async def confirm_user(
+        db: Session, user_id: str, passcode: int) -> models.User:
+    """
+    Implement endpoint to confirm user email.
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        passcode: int
+            the passcode provided by the user
+        user_id: int
+            the user id to be confirmed
+
+    Returns:
+    -------
+        User: the updated user details
+    """
+    user = await get_by_id(db=db, user_id=user_id)
+    print(CONFIRMATIONS)
+
+    is_true = next((
+        i for i in CONFIRMATIONS if i["user_email"] == user.email), None)
+
+    if not is_true or is_true["passcode"] != passcode:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The passcode provided is inaccurate.")
+
+    return await repository.confirm_user(db=db, user_id=user_id)
 
 
 async def delete_user(db: Session, email: str) -> Dict:

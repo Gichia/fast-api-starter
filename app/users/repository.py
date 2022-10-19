@@ -143,6 +143,31 @@ async def update_user(
     return await get_by_id(db=db, user_id=user_id)
 
 
+async def confirm_user(db: Session, user_id: int) -> models.User:
+    """
+    Change the confirm status for a user
+
+    Parameters:
+    ----------
+        db: (Session):
+            the database session to be used.
+        user_id: int
+            the id of the user to be updated
+
+    Returns:
+    -------
+        User:
+            the updated user details
+    """
+    db.query(models.User).filter(
+        models.User.id == user_id).update({
+            "confirmed": True}, synchronize_session=False)
+
+    db.commit()
+
+    return await get_by_id(db=db, user_id=user_id)
+
+
 async def delete_user(db: Session, user_id: int) -> None:
     """
     Remove user details in the database.
@@ -158,8 +183,18 @@ async def delete_user(db: Session, user_id: int) -> None:
     -------
         None
     """
-    db.query(models.User).filter(models.User.id ==
-                                 user_id).delete(synchronize_session=False)
+    db.query(models.UserAddress).filter(
+        models.UserAddress.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    db.query(models.ValueChain).filter(
+        models.ValueChain.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    db.query(models.User).filter(
+        models.User.id == user_id
+    ).delete(synchronize_session=False)
+
     db.commit()
 
     return

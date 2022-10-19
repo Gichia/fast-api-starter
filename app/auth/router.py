@@ -32,9 +32,7 @@ get_db = database.get_db
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/register",
-             status_code=status.HTTP_201_CREATED,
-             response_model=schema.UserShow)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
         request: schema.UserCreate, db: Session = Depends(get_db)):
     """
